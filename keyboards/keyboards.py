@@ -31,7 +31,7 @@ def products_keyb(card=False):
 
 
 def admin_pan():
-    buttons = ["Добавить товар", "Удалить товра", "Главное меню"]
+    buttons = ["Добавить товар", "Удалить товар", "Главное меню"]
     builder = ReplyKeyboardBuilder()
     
     for i in buttons:
@@ -39,4 +39,16 @@ def admin_pan():
             text=i
         )
     
+    return builder.as_markup(resize_keyboard=True)
+
+
+def user_card_keb():
+    buttons = ["Удалить товар из корзины", "Главное меню"]
+    builder = ReplyKeyboardBuilder()
+
+    for i in buttons:
+        builder.button(
+            text=i
+        )
+
     return builder.as_markup(resize_keyboard=True)
