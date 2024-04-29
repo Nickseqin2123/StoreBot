@@ -4,10 +4,8 @@ import pymysql.cursors
 from SqlRequest.RequestsFirst import RequestsFirst
 
 
-
 class RequestsSecond(RequestsFirst):
-    
-    
+
     def get_user_card(self, user_id):
         try:
             connect = pymysql.connect(
@@ -29,11 +27,9 @@ class RequestsSecond(RequestsFirst):
         except Exception as er:
             print(er)
     
-    
-    def get_products(self):
-        return super().get_products()
-    
-    
+    def get_products(self, product_name=None):
+        return super().get_products(product_name=product_name)
+
     def add_user_card(self, user_id: int, product_name: str, count: int, price: int|float):
         try:
             connect = pymysql.connect(
@@ -64,9 +60,8 @@ class RequestsSecond(RequestsFirst):
         
         except Exception as er:
             print(er)
-    
-    
-    def sub_user_card(self, user_id: int, product_name: str, count: int):
+
+    def delete_user_card(self, user_id: int, product_name: str, count: int, price: int | float):
         try:
             connect = pymysql.connect(
                 password=self.PASSWORD,
@@ -79,19 +74,20 @@ class RequestsSecond(RequestsFirst):
             print("OK")
             try:
                 with connect.cursor() as cursa:
-                    req = f"""UPDATE `store`.`card`
-                    SET count = `count` - '{count}'
-                    WHERE (`user_id` = '{user_id}' AND `product` = '{product_name}')"""
+                    req = f"DELETE FROM `store`.`card` WHERE (`product` = '{product_name}' AND `user_id` = '{user_id}')"
                     cursa.execute(req)
                     connect.commit()
                     
             finally:
                 connect.close()
+                self.set_product(
+                    product_name,
+                    count,
+                    price)
         
         except Exception as er:
             print(er)
-    
-    
+
     def set_user(self, user_id):
         try:
             connect = pymysql.connect(
@@ -117,6 +113,6 @@ class RequestsSecond(RequestsFirst):
         
         except Exception as er:
             print(er)
-            
+
 
 database = RequestsSecond()
