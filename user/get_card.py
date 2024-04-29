@@ -32,7 +32,7 @@ async def prod(message: Message, state: FSMContext):
             builder.add(
                 InlineKeyboardButton(
                     text="Добавить в корзину",
-                    callback_data=f"buycard {i["product"]} {i["count"]} {i["price"]}"
+                    callback_data=f'buycard {i["product"]} {i["count"]} {i["price"]}'
                 )
             )
             
@@ -103,4 +103,3 @@ async def summary(message: Message, data: dict, state: FSMContext):
     )
     await state.update_data(prod=data["prod"])
     await state.set_state(Stt.prod)
-    
