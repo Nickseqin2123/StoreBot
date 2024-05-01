@@ -70,7 +70,7 @@ async def summary(message: Message, data: dict, state: FSMContext):
     data_sp = data["admin_prod"].split()
     
     if len(data_sp) == 3 and data_sp[1].isdigit() and data_sp[-1].isdigit():
-        database.set_products_sklad(
+        database.set_product(
             data_sp[0],
             int(data_sp[1]),
             int(data_sp[-1])
@@ -79,6 +79,12 @@ async def summary(message: Message, data: dict, state: FSMContext):
             text="Продукты на складе пополнились",
             reply_markup=menu(message.from_user.id)
         )
+    else:
+        await message.answer(
+            text="Данные введены не корекктно, пожалуйста повторите ввод"
+        )
+        await state.set_state(Select.sele)
+    
     else:
         await message.answer(
             text="Данные введены не корекктно, пожалуйста повторите ввод"

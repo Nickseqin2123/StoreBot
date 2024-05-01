@@ -3,13 +3,12 @@ import pymysql.cursors
 
 
 class RequestsFirst:
-    
+
     HOST = "127.0.0.1"
-    PASSWORD = "NekitVip123_ZXCPUDGE228"
-    DATABASE = "store"
     USER = "root"
-    
-    
+    PASSWORD = "NekitVip123_ZXCPUGE228"
+    DATABASE = "users"
+
     def get_products(self, product_name=None):
         try:
             connect = pymysql.connect(
@@ -34,8 +33,7 @@ class RequestsFirst:
                     
         except Exception as er:
             print(er)
-    
-    
+
     def get_card(self):
         try:
             connect = pymysql.connect(
@@ -56,9 +54,8 @@ class RequestsFirst:
                     
         except Exception as er:
             print(er)
-    
-    
-    def set_product(self, product_name: str, count: int, price: int|float):
+
+    def set_product(self, product_name: str, count: int, price: int | float):
         try:
             connect = pymysql.connect(
                 host=self.HOST,
@@ -87,9 +84,8 @@ class RequestsFirst:
                     
         except Exception as er:
             print(er)
-    
-    
-    def sub_product(self, product_name: str, count: int, price: int|float):
+
+    def sub_product(self, product_name: str, count: int, price: int | float):
         try:
             connect = pymysql.connect(
                 host=self.HOST,
@@ -112,5 +108,28 @@ class RequestsFirst:
             finally:
                 connect.close()
                     
+        except Exception as er:
+            print(er)
+
+    def delete_product(self, product_name):
+        try:
+            connect = pymysql.connect(
+                host=self.HOST,
+                port=3306,
+                database=self.DATABASE,
+                user=self.USER,
+                password=self.PASSWORD,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            print("OK")
+            try:
+                with connect.cursor() as cursa:
+                    req = f"""DELETE FROM `store`.`products` WHERE `product` = '{product_name}'"""
+                    cursa.execute(req)
+                    connect.commit()
+
+            finally:
+                connect.close()
+
         except Exception as er:
             print(er)
