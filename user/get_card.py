@@ -103,3 +103,4 @@ async def summary(message: Message, data: dict, state: FSMContext):
     )
     await state.update_data(prod=data["prod"])
     await state.set_state(Stt.prod)
+    
