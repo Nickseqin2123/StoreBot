@@ -85,7 +85,7 @@ async def upd(message: Message, state: FSMContext):
 async def summary(message: Message, data: dict, state: FSMContext):
     pr = data["prod"].split()
     if data["user_prod"].isdigit():
-        if int(pr[2]) - int(data["user_prod"]) >= 0:
+        if int(pr[2]) - int(data["user_prod"]) > 0:
             database.add_user_card(
                 user_id=message.from_user.id,
                 product_name=pr[1],
@@ -97,6 +97,22 @@ async def summary(message: Message, data: dict, state: FSMContext):
                 reply_markup=menu(message.from_user.id)
             )
             return
+        elif int(pr[2]) - int(data["user_prod"]) == 0:
+            database.add_user_card(
+                user_id=message.from_user.id,
+                product_name=pr[1],
+                count=int(data["user_prod"]),
+                price=int(pr[-1])
+                                   )
+            database.delete_product(
+                pr[1]
+            )
+            await message.answer(
+                text="Товар был добавлен в вашу корзину",
+                reply_markup=menu(message.from_user.id)
+            )
+            return
+            
     await message.answer(
         text=f"""Вы ввели не числовое значение или неверное кол-во.
 Укажите кол-во {pr[1]} которого хотите приобрести"""

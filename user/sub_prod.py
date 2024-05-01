@@ -68,8 +68,8 @@ async def summary(message: Message, data: dict, state: FSMContext):
                 text=f"Товар {prod_name}, уменьшен в кол-ве",
                 reply_markup=menu(message.from_user.id)
             )
-            
-        else:
+            return
+        elif int(count) - int(data['sub_tovar']) == 0:
             database.delete_user_card(
                 message.from_user.id,
                 prod_name,
@@ -80,7 +80,8 @@ async def summary(message: Message, data: dict, state: FSMContext):
                 text=f"Товар {prod_name}, был удален из вашей корзины",
                 reply_markup=menu(message.from_user.id)
             )
-    else:
+            return
+        await state.update_data(prod_for_sub=data["prod_for_sub"])
         await state.set_state(SelectProdForSub.su)
         await message.answer(
             text="Вы ввели не числовое значение. Введите корекктное число"
