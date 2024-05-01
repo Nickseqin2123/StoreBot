@@ -1,0 +1,193 @@
+{
+  "author": "Unnamed",
+  "title": "Untitled Diagram",
+  "date": "2024-05-01T14:41:50.723Z",
+  "tables": [
+    {
+      "id": 0,
+      "name": "user",
+      "x": 18,
+      "y": 46,
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "VARCHAR",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": false,
+          "increment": false,
+          "comment": "",
+          "id": 0,
+          "size": 255
+        }
+      ],
+      "comment": "",
+      "indices": [
+        {
+          "id": 0,
+          "name": "user_id_index",
+          "unique": false,
+          "fields": [
+            "user_id"
+          ]
+        }
+      ],
+      "color": "#175e7a",
+      "key": 1714574084565
+    },
+    {
+      "id": 1,
+      "name": "card",
+      "x": 359,
+      "y": 73,
+      "fields": [
+        {
+          "name": "not_nul",
+          "type": "INT",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": true,
+          "comment": "",
+          "id": 0
+        },
+        {
+          "name": "product",
+          "type": "VARCHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": false,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": 255
+        },
+        {
+          "name": "user_id",
+          "type": "VARCHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": false,
+          "increment": false,
+          "comment": "",
+          "id": 2,
+          "size": 255
+        },
+        {
+          "name": "count",
+          "type": "VARCHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": false,
+          "increment": false,
+          "comment": "",
+          "id": 3,
+          "size": 255
+        },
+        {
+          "name": "price",
+          "type": "VARCHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": false,
+          "increment": false,
+          "comment": "",
+          "id": 4,
+          "size": 255
+        }
+      ],
+      "comment": "",
+      "indices": [
+        {
+          "id": 0,
+          "name": "user_id_index",
+          "unique": false,
+          "fields": [
+            "user_id"
+          ]
+        }
+      ],
+      "color": "#175e7a",
+      "key": 1714574129969
+    },
+    {
+      "id": 2,
+      "name": "products",
+      "x": 685,
+      "y": 97,
+      "fields": [
+        {
+          "name": "product",
+          "type": "VARCHAR",
+          "default": "",
+          "check": "",
+          "primary": true,
+          "unique": true,
+          "notNull": true,
+          "increment": false,
+          "comment": "",
+          "id": 0,
+          "size": 255
+        },
+        {
+          "name": "count",
+          "type": "VARCHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": false,
+          "increment": false,
+          "comment": "",
+          "id": 1,
+          "size": 255
+        },
+        {
+          "name": "price",
+          "type": "VARCHAR",
+          "default": "",
+          "check": "",
+          "primary": false,
+          "unique": false,
+          "notNull": false,
+          "increment": false,
+          "comment": "",
+          "id": 2,
+          "size": 255
+        }
+      ],
+      "comment": "",
+      "indices": [],
+      "color": "#175e7a",
+      "key": 1714574412059
+    }
+  ],
+  "relationships": [
+    {
+      "startTableId": 0,
+      "startFieldId": 0,
+      "endTableId": 1,
+      "endFieldId": 2,
+      "cardinality": "One to many",
+      "updateConstraint": "No action",
+      "deleteConstraint": "No action",
+      "name": "user_user_id_fk",
+      "id": 0
+    }
+  ],
+  "notes": [],
+  "subjectAreas": [],
+  "types": []
+}
