@@ -53,7 +53,6 @@ class RequestsSecond(RequestsFirst):
                         VALUES ('{product_name}', '{user_id}', '{count}', '{price}')"""
                     cursa.execute(req)
                     connect.commit()
-                    
             finally:
                 connect.close()
                 self.sub_product(product_name, count, price)
@@ -74,17 +73,17 @@ class RequestsSecond(RequestsFirst):
             print("OK")
             try:
                 with connect.cursor() as cursa:
-                    req = f"DELETE FROM `store`.`card` WHERE (`product` = '{product_name}' AND `user_id` = '{user_id}')"
+                    req = f"""DELETE FROM `store`.`card`
+                    WHERE (`product` = '{product_name}' AND `user_id` = '{user_id}')"""
                     cursa.execute(req)
                     connect.commit()
-                    
             finally:
                 connect.close()
                 self.set_product(
                     product_name,
                     count,
                     price)
-        
+
         except Exception as er:
             print(er)
 
@@ -107,10 +106,37 @@ class RequestsSecond(RequestsFirst):
                         req = f"""INSERT INTO `store`.`user` (`user_id`) VALUES ('{user_id}')"""
                         cursa.execute(req)
                         connect.commit()
-                    
             finally:
                 connect.close()
         
+        except Exception as er:
+            print(er)
+    
+    def sub_product_user(self, user_id: int, product_name: str, count: int, price: int | float):
+        try:
+            connect = pymysql.connect(
+                host=self.HOST,
+                port=3306,
+                user=self.USER,
+                password=self.PASSWORD,
+                database=self.DATABASE,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            print("OK")
+            try:
+                with connect.cursor() as cursa:
+                    req = f"""UPDATE `store`.`card`
+                    SET count = `count` - '{count}'"""
+                    cursa.execute(req)
+                    connect.commit()
+            finally:
+                connect.close()
+                self.set_product(
+                    product_name,
+                    count,
+                    price
+                )
+            
         except Exception as er:
             print(er)
 
