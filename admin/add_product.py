@@ -84,10 +84,3 @@ async def summary(message: Message, data: dict, state: FSMContext):
             text="Данные введены не корекктно, пожалуйста повторите ввод"
         )
         await state.set_state(Select.sele)
-    
-    else:
-        await message.answer(
-            text="Данные введены не корекктно, пожалуйста повторите ввод"
-        )
-        await state.set_state(Select.sele)
-    

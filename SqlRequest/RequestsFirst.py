@@ -6,7 +6,7 @@ class RequestsFirst:
 
     HOST = "127.0.0.1"
     USER = "root"
-    PASSWORD = "NekitVip123_ZXCPUGE228"
+    PASSWORD = "NekitVip123_ZXCPUDGE228"
     DATABASE = "users"
 
     def get_products(self, product_name=None):
