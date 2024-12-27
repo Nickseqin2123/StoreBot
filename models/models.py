@@ -14,7 +14,7 @@ class User(Model):
     card = relationship('Card', back_populates='user', lazy='selectin') # ПРИМЕР: Если ты делаешь relationship для класса А из класса Б, то в классе Б дожен быть relationship для класса А
 
 
-class Products(Model):
+class Product(Model):
     __tablename__ = 'products'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -23,7 +23,7 @@ class Products(Model):
     price: Mapped[float]
     count: Mapped[int]
 
-    card = relationship('Card', back_populates='products', lazy='selectin')
+    card = relationship('Card', back_populates='product', lazy='selectin')
 
 
 class Card(Model):
@@ -32,6 +32,7 @@ class Card(Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[str_256] = mapped_column(ForeignKey('user.id', ondelete='CASCADE'))
     product_id: Mapped[int] = mapped_column(ForeignKey('products.id', ondelete='CASCADE'))
+    count: Mapped[int]
 
-    products = relationship('Products', back_populates='card', lazy='selectin')
+    product = relationship('Product', back_populates='card', lazy='selectin')
     user = relationship('User', back_populates='card', lazy='selectin')
