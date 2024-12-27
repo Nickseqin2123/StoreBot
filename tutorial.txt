@@ -1,0 +1,4 @@
+Чтобы не было проблем с импортом:
+    1. В site-packages создаем файл myproject.pth
+    2. Вписываем туда путь до проекта (Пример: /home/nikita/PythonProjects/StoreBot)
+    3. Радуемся жизни
