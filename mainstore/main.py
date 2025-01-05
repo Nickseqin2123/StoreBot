@@ -1,16 +1,27 @@
 import asyncio
 import logging
 
-from aiogram import Dispatcher, Bot, F
+from aiogram import Dispatcher, Bot
 from aiogram.types import Message
+from aiogram.filters.command import CommandStart
+from requestss.user import add_user
+from keyboardd.common import start_keyb
+from main_router import router as main_router
 
 
 dp = Dispatcher()
+dp.include_router(main_router)
 
 
-@dp.message()
+@dp.message(CommandStart())
 async def start(message: Message):
-    await message.reply(text=message.text)
+    resp = await add_user(user_id=message.from_user.id)
+    print(f'Отладка: {resp}')
+    
+    await message.answer(
+        text='Добро пожаловать в мой магазин :>',
+        reply_markup=await start_keyb()
+    )
 
 
 async def main():
