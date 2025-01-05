@@ -6,4 +6,4 @@ router = Router(name=__name__)
 
 
 async def userCard(message: Message):
-    user_card = 
+    # user_card = 
