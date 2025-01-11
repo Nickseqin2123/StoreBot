@@ -2,8 +2,8 @@ from typing import Optional
 
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey
-from mainstore.maindb import Model, str64, str_256
+from sqlalchemy import ForeignKey, UniqueConstraint
+from mainstore.maindb import Model, str128, str_256
 
 
 class User(Model):
@@ -18,8 +18,8 @@ class Product(Model):
     __tablename__ = 'products'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str_256]
-    description: Mapped[str64]
+    name: Mapped[str_256] = mapped_column(unique=True)
+    description: Mapped[str128]
     price: Mapped[float]
     count: Mapped[int]
 
@@ -36,3 +36,7 @@ class Card(Model):
 
     product = relationship('Product', back_populates='card', lazy='selectin')
     user = relationship('User', back_populates='card', lazy='selectin')
+    
+    __table_args__ = (
+        UniqueConstraint('user_id', 'product_id', name='uix_user_product'), # Комбинация user_id product_id, будет уникальной
+    )

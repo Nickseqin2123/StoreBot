@@ -6,7 +6,7 @@ from models.models import User, Card, Product
 from mainstore.maindb import cfg
 
 
-def get_user(func):
+def getUser(func):
     
     async def wrapper(*args, **kwargs):
         session = async_sessionmaker(cfg.engine)
@@ -17,17 +17,16 @@ def get_user(func):
                 user = await session.get(User, ident=kwargs['user_id'])
                 
                 if not user:
-                    await func(**kwargs)
-                    return f'Пользователь {kwargs['user_id']} добавлен в базу'
-                else:
-                    return f'Пользователь {user.id} уже есть в базе'
+                    return await func(**kwargs)
+                
+                return f'Пользователь {user.id} уже есть в базе'
         finally:
             await cfg.engine.dispose()
     
     return wrapper
 
 
-def check_user_cart(func):
+def checkUserCard(func):
     
     async def wrapper(*args, **kwargs):
         session = async_sessionmaker(cfg.engine)
@@ -37,11 +36,12 @@ def check_user_cart(func):
                 query = select(Card).filter(Card.user_id == kwargs['user_id'])
                 resp = await session.execute(query)
                 
-                first_res = resp.first()[0]
-                kwargs.update({'user_card': first_res})
+                res = resp.first()
+                if res:
+                    return await func(**kwargs)
+                
+    
                     
-                if bool(first_res):
-                    await func(**kwargs)
         finally:
             await cfg.engine.dispose()
 
@@ -49,8 +49,8 @@ def check_user_cart(func):
     return wrapper
 
 
-@get_user
-async def add_user(user_id: int): # В связке с get_user. Подаем четкие аргументы(только kwargs см. в get_user)
+@getUser
+async def addUser(user_id: int): # В связке с get_user. Подаем четкие аргументы(только kwargs см. в get_user)
     '''
     Добавляет пользователя в бд, если его там нет.
     Работает с декоратором get_user
@@ -62,11 +62,11 @@ async def add_user(user_id: int): # В связке с get_user. Подаем ч
             
         await session.execute(query)
         await session.commit()
-    
-    return 'Пользователь добавлен в базу'
+        
+    return f'Пользователь {user_id} добавлен в базу'
     
 
-async def delete_product_user(user_id: int, product_id: int, count: int):
+async def deleteProductUser(user_id: int, product_id: int, count: int):
     session = async_sessionmaker(cfg.engine)
     
     async with session() as session:
@@ -78,43 +78,43 @@ async def delete_product_user(user_id: int, product_id: int, count: int):
             query_add = update(Product).filter(Product.id == product_id).values(count=Product.count + count)
             await session.execute(query_add)
     
-    return 'Операция прошла успешно'
+    return 'Удаление прошло успешно'
     
 
-@check_user_cart
-async def sub_user_count_card(user_id: int, product_id: int, count_change: int, user_card: Card = None):
+@checkUserCard
+async def subUserCountCard(user_id: int, product_id: int, count_change: int):
     session = async_sessionmaker(cfg.engine)
     
 
     async with session() as session:
         async with session.begin():
+            user_tovar = select(Card).filter(Card.user_id == user_id, Card.product_id == product_id)
+            user_tovar = await session.execute(user_tovar)
             
-            count_in_base = user_card.count
+            count_in_base = user_tovar.scalar_one_or_none()
                     
-            if count_change >= count_in_base:
-                await delete_product_user(user_id=user_id, product_id=product_id, count=count_in_base)
-                
-            # user_card.count -= count_change 
+            if count_change >= count_in_base.count:
+                await deleteProductUser(user_id=user_id, product_id=product_id, count=count_in_base)
+            
             query_sub_user = update(Card).filter(Card.user_id == user_id, Card.product_id == product_id).values(count=Card.count - count_change)
             await session.execute(query_sub_user)
             
-            query_add_product = update(Product).filter(Product.id == product_id).values(count=Product.count + count_change)
-            
+            query_add_product = update(Product).filter(Product.id == product_id).values(count=Product.count + count_change)       
             await session.execute(query_add_product)
 
                                 
-    return 'Операция прошла успешно'
+    return 'Кол-во товара было уменьшено у вас в корзине успешно'
     
     
-@check_user_cart
-async def add_product_count_user_card(user_id: int, product_id: int, count_change: int, user_card: Card = None):
+@checkUserCard
+async def addProductCountUserCard(user_id: int, product_id: int, count_change: int):
     session = async_sessionmaker(cfg.engine)
     
     async with session() as session:
         async with session.begin():
             product = select(Product).filter(Product.id == product_id)
             resp = await session.execute(product)
-            count_in_base_product = resp.first()[0].count
+            count_in_base_product = resp.scalar_one().count
             
             if count_change > count_in_base_product:
                 return 'На складе нет столько товара!'
@@ -123,17 +123,40 @@ async def add_product_count_user_card(user_id: int, product_id: int, count_chang
             await session.execute(query_sub_sklad)
                 
             query_add_user = update(Card).filter(Card.user_id == user_id, Card.product_id == product_id).values(count=Card.count + count_change)
-            await session.execute(query_add_user)
+            res = await session.execute(query_add_user)
+            
+            if res.rowcount == 0:
+                card_user = insert(Card).values(user_id=user_id, product_id=product_id, count=count_change)
+                await session.execute(card_user)
                 
         await session.commit()
+    
+    return 'Добавление товара прошло успешно'
 
 
-@check_user_cart
-async def get_user_card(user_id, user_card: Card = None):
-    print(user_card)
+@checkUserCard
+async def getUserCard(user_id: int):
+    session = async_sessionmaker(cfg.engine)
+    
+    async with session() as session:
+        query = select(Card).filter(Card.user_id == user_id)
+        return_rows = await session.execute(query)
+            
+        return return_rows.all()
 
 
-asyncio.run(sub_user_count_card(user_id=1124518724, product_id=1, count_change=1))
-
-
-# Узнать насчет user_card параметра и user_card.count -= count_change 
+async def getProducts():
+    session = async_sessionmaker(cfg.engine)
+    
+    try:
+        async with session() as session:
+            query = select(Product)
+            response = await session.execute(query)
+            selects = response.all()
+            
+            if selects:
+                return selects
+            return 'На складе нет товаров ;<'
+            
+    finally:
+        await cfg.engine.dispose()
