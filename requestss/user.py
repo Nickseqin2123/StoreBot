@@ -38,10 +38,7 @@ def checkUserCard(func):
                 
                 res = resp.first()
                 if res:
-                    return await func(**kwargs)
-                
-    
-                    
+                    return await func(**kwargs)      
         finally:
             await cfg.engine.dispose()
 
@@ -66,72 +63,80 @@ async def addUser(user_id: int): # В связке с get_user. Подаем ч�
     return f'Пользователь {user_id} добавлен в базу'
     
 
-async def deleteProductUser(user_id: int, product_id: int, count: int):
+async def deleteProductUser(user_id: int, product_id: int):
     session = async_sessionmaker(cfg.engine)
     
-    async with session() as session:
-        async with session.begin():
-            
-            query_delete = delete(Card).filter(Card.user_id == user_id, Card.product_id == product_id)
-            await session.execute(query_delete)
-            
-            query_add = update(Product).filter(Product.id == product_id).values(count=Product.count + count)
-            await session.execute(query_add)
+    try:
+        async with session() as session:
+            async with session.begin():
+                
+                query_delete = delete(Card).filter(Card.user_id == user_id, Card.product_id == product_id)
+                await session.execute(query_delete)
+    except Exception:
+        return 'Неожиданная ошибка, перезапустите бота. Отправьте /start'
+    finally:
+        await cfg.engine.dispose()
     
     return 'Удаление прошло успешно'
     
 
-@checkUserCard
 async def subUserCountCard(user_id: int, product_id: int, count_change: int):
     session = async_sessionmaker(cfg.engine)
     
-
-    async with session() as session:
-        async with session.begin():
-            user_tovar = select(Card).filter(Card.user_id == user_id, Card.product_id == product_id)
-            user_tovar = await session.execute(user_tovar)
-            
-            count_in_base = user_tovar.scalar_one_or_none()
+    try:
+        async with session() as session:
+            async with session.begin():
+                user_tovar = select(Card).filter(Card.user_id == user_id, Card.product_id == product_id)
+                user_tovar = await session.execute(user_tovar)
+                base = user_tovar.scalar_one_or_none()
+                
+                if count_change >= base.count:
+                    query_delete = delete(Card).filter(Card.user_id == user_id, Card.product_id == product_id)
+                    await session.execute(query_delete)
                     
-            if count_change >= count_in_base.count:
-                await deleteProductUser(user_id=user_id, product_id=product_id, count=count_in_base)
-            
-            query_sub_user = update(Card).filter(Card.user_id == user_id, Card.product_id == product_id).values(count=Card.count - count_change)
-            await session.execute(query_sub_user)
-            
-            query_add_product = update(Product).filter(Product.id == product_id).values(count=Product.count + count_change)       
-            await session.execute(query_add_product)
+                    return 'Удаление прошло успешно'
+                    
+                query_sub_user = update(Card).filter(Card.user_id == user_id, Card.product_id == product_id).values(count=Card.count - count_change)
+                await session.execute(query_sub_user)
+    except Exception:
+        return 'Неожиданная ошибка, перезапустите бота. Отправьте /start'
+    
+    finally:
+        await cfg.engine.dispose()
+    
+    return f'Кол-во товара было уменьшено'
 
-                                
-    return 'Кол-во товара было уменьшено у вас в корзине успешно'
-    
-    
-@checkUserCard
+
 async def addProductCountUserCard(user_id: int, product_id: int, count_change: int):
     session = async_sessionmaker(cfg.engine)
     
-    async with session() as session:
-        async with session.begin():
-            product = select(Product).filter(Product.id == product_id)
-            resp = await session.execute(product)
-            count_in_base_product = resp.scalar_one().count
-            
-            if count_change > count_in_base_product:
-                return 'На складе нет столько товара!'
-            
-            query_sub_sklad = update(Product).filter(Product.id == product_id).values(count=Product.count - count_change)
-            await session.execute(query_sub_sklad)
+    try:
+        async with session() as session:
+            async with session.begin():
+                product = select(Product).filter(Product.id == product_id)
+                user = select(Card).filter(Card.user_id == user_id, Card.product_id == product_id)
                 
-            query_add_user = update(Card).filter(Card.user_id == user_id, Card.product_id == product_id).values(count=Card.count + count_change)
-            res = await session.execute(query_add_user)
-            
-            if res.rowcount == 0:
-                card_user = insert(Card).values(user_id=user_id, product_id=product_id, count=count_change)
-                await session.execute(card_user)
+                resp = await session.execute(product)
+                resp_user = await session.execute(user)
+
+                user = resp_user.first()
                 
-        await session.commit()
-    
-    return 'Добавление товара прошло успешно'
+                count_in_base_product = resp.scalar_one().count
+                
+                if user:
+                    if count_change > count_in_base_product or user[0].count >= count_in_base_product:
+                        return 'На складе нет столько товара!'
+                
+                    query_add_user = update(Card).filter(Card.user_id == user_id, Card.product_id == product_id).values(count=Card.count + count_change)
+                    await session.execute(query_add_user)
+                else:
+                    card_user = insert(Card).values(user_id=user_id, product_id=product_id, count=count_change)
+                    await session.execute(card_user)
+                    
+    finally:
+        await cfg.engine.dispose()
+        
+    return 'Товар был добавлен в вашу корзину'
 
 
 @checkUserCard

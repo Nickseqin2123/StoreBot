@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message
 from requestss.user import getUserCard
 from models.models import Card, Product
+from keyboardd.inlines import inline
 
 
 router = Router(name=__name__)
@@ -9,7 +10,7 @@ router = Router(name=__name__)
 
 @router.message(F.text == 'Моя корзина')
 async def user_card(message: Message):
-    user_card_response = await getUserCard(user_id=1124518724)
+    user_card_response = await getUserCard(user_id=message.from_user.id)
     
     if isinstance(user_card_response, str):
         await message.answer(
@@ -26,4 +27,6 @@ async def user_card(message: Message):
 💰 |Цена продукта: ** <b>{product.price:.1f} руб.</b> **
 💫 |У вас в корзине: ** <b>{item_obj.count} eд.</b> **
 📝 |Описание продукта: ** <b><u>{product.description}</u></b> **
-''', parse_mode='HTML')
+''', parse_mode='HTML', reply_markup=await inline(Убавить={'id': product.id, 'name': product.name, 'operation': 'sub'},
+                                                  Добавить={'id': product.id, 'name': product.name, 'operation': 'add'},
+                                                  Удалить={'id': product.id, 'name': product.name, 'operation': 'delete'}))

@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import configparser
 
 from aiogram import Dispatcher, Bot
 from aiogram.types import Message
@@ -26,11 +25,7 @@ async def start(message: Message):
 
 
 async def main():
-    settings = configparser.ConfigParser()
-    settings.read('env.ini')
-    token = settings['MAIN']['TOKEN']
-    
-    bot = Bot(token=token)
+    bot = Bot(token='7132163630:AAGgrqpTpqcom3_Qs40V3L5vKi6ey31wp5s')
     logging.basicConfig(level=logging.INFO)
 
     await dp.start_polling(bot)
