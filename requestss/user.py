@@ -38,7 +38,8 @@ def checkUserCard(func):
                 
                 res = resp.first()
                 if res:
-                    return await func(**kwargs)      
+                    return await func(**kwargs)
+                return 'У вас нет товаров в корзине'
         finally:
             await cfg.engine.dispose()
 
@@ -72,7 +73,8 @@ async def deleteProductUser(user_id: int, product_id: int):
                 
                 query_delete = delete(Card).filter(Card.user_id == user_id, Card.product_id == product_id)
                 await session.execute(query_delete)
-    except Exception:
+    except Exception as er:
+        print(er, end='\n')
         return 'Неожиданная ошибка, перезапустите бота. Отправьте /start'
     finally:
         await cfg.engine.dispose()
@@ -98,13 +100,14 @@ async def subUserCountCard(user_id: int, product_id: int, count_change: int):
                     
                 query_sub_user = update(Card).filter(Card.user_id == user_id, Card.product_id == product_id).values(count=Card.count - count_change)
                 await session.execute(query_sub_user)
-    except Exception:
+    except Exception as er:
+        print(er, end='\n')
         return 'Неожиданная ошибка, перезапустите бота. Отправьте /start'
     
     finally:
         await cfg.engine.dispose()
     
-    return f'Кол-во товара было уменьшено'
+    return 'Кол-во товара было уменьшено'
 
 
 async def addProductCountUserCard(user_id: int, product_id: int, count_change: int):

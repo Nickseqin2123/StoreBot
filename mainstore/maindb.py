@@ -1,3 +1,5 @@
+import configparser
+
 from typing import Annotated
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
@@ -16,12 +18,24 @@ class Model(DeclarativeBase):
     
 
 class Configurator:
-    __USERNAME: str = 'root'
-    __PASSWORD: str = 'ZXCPUDGE228'
-    __HOST: str = '127.0.0.1'
-    __DB_NAME: str = 'store'
+    __USERNAME: str = ''
+    __PASSWORD: str = ''
+    __HOST: str = ''
+    __DB_NAME: str = ''
 
     def __init__(self, type_connect: str = 'async'):
+        settings = configparser.ConfigParser()
+        settings.read('data.ini')
+        
+        db = settings['DATABASE']
+        self.__USERNAME = db['USERNAME']
+        self.__PASSWORD = db['PASSWORD']
+        self.__HOST = db['HOST']
+        self.__DB_NAME = db['DB_NAME']
+        
+        self.token = settings['TOKEN']['token']
+        self.admin = int(settings['ADMIN']['admin'])
+        
         connectors = {
             'async': create_async_engine(self.async_connect_url, 
                                          pool_size=5,          # максимальное количество соединений в пуле

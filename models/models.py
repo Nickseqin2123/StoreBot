@@ -1,6 +1,3 @@
-from typing import Optional
-
-
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, UniqueConstraint
 from mainstore.maindb import Model, str128, str_256
