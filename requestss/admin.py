@@ -56,7 +56,7 @@ async def subProduct(product_id: int, count_change: int):
     return 'Кол-во товара было уменьшено'
 
 
-async def delete_product(product_id: int):
+async def deleteProduct(product_id: int):
     session = async_sessionmaker(cfg.engine)
     
     try:
